@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- Bootstrap core CSS -->
+    <link href="../public/bootstrap.min.css" title="" rel="stylesheet" />
+    <link href="../css/plugins/toastr/toastr.min.css" rel="stylesheet"/>
+    <link href="../font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../public/animate.css" rel="stylesheet">
+    <link href="../public/inspinia.css" rel="stylesheet"/>
+    <link href="../css/my_TiBaoJiLu.css" rel="stylesheet"/>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="../public/html5shiv.min.js"></script>
+    <script src="../public/respond.min.js"></script>
+    <![endif]-->
+    <title>信息管理系统</title>
+</head>
+<body>
+<div id="wrapper" class="container">
+    <!--标编辑-->
+    <div id="biaobj" class=" wrapper wrapper-content animated fadeInRight">
+        <h3>配件管理</h3>
+        <div class="right_box" id="right_box">
+            <form action="" class="form-horizontal">
+                <div class="form-group">
+                    <!--
+                    <label class="col-lg-1 col-md-1 col-sm-1 control-label">名称：</label>
+                    <div class="col-lg-2 col-md-2 col-sm-2">
+                        <input style="margin-left:-80px;" type="text" class="form-control" />
+                    </div>
+                    <label class="col-lg-1 col-md-1 col-sm-1 control-label" >角色：</label>
+                    <div class="col-lg-3 col-md-2 col-sm-2 chosen-container chosen-container-single">
+                        <select class="select2_demo_1 form-control">
+                            <option value="2">全部</option>
+                            <option value="3">担保标</option>
+                            <option value="4">抵押标</option>
+                            <option value="5">信用标</option>
+                        </select>
+                    </div>
+                    -->
+                    <label class="col-lg-1 col-md-1 col-sm-1 control-label" >配件号：</label>
+                    <div class="col-lg-2 col-md-2 col-sm-2">
+                        <input type="text" class="form-control" id="groupNoCondition"/>
+                    </div>
+                    <button id="conditionSearch" style="width:82px;height:34px;" type="button" class="col-lg-3 btn btn-success">搜索</button>
+                </div>
+            </form>
+
+            <!--表格部分-->
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <table class="table table-striped table-bordered table-hover dataTables-example">
+                            <thead id="carPartsTableHead">
+
+                            <!--
+                                表头
+                                -->
+                            </thead>
+                            <tbody id = "carPartsTable">
+                            <!-- 后台数据-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="totalDiv" class="col-sm-5">
+                        <input type='hidden' id="carTypeId" name='carPartsIds' th:value="${carTypeId}">
+                        <input type='hidden' id="carTypeDetailId" name='carPartsIds' th:value="${carTypeDetailId}">
+                    </div>
+                    <div style="height:27px;" class="col-sm-7">
+                        <div class="pagger-box pagger" id="editable_paginate">
+                            <!--<ul id="totalPageUl" class="pagination pull-right" style="margin:-3px 0;">
+                             分页
+                            </ul>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<iframe id="ifr" src="/tabSwiper" frameborder="no" scrolling="no" width="780px" height="100%" allowtransparency="true"></iframe>
+<script src="../public/jquery-1.11.3.js"></script>
+<script src="../public/bootstrap.min.js" type="text/javascript"></script>
+<script src="../js/plugins/lhgdialog/lhgdialog.js"></script>
+<!-- 弹出警示框 -->
+<script src="../js/plugins/toastr/toastr.min.js"></script>
+<!-- 弹出确认框 -->
+<script src="../public/artDialog4.1.7/artDialog.js?skin=blue"></script>
+<script src="../public/artDialog4.1.7/plugins/iframeTools.js"></script>
+<script src="../js/templet_form.js"></script>
+<script src="../js/paging.js"></script>
+<script>
+    $(function() {
+        carPartList(1);
+    });
+
+    function carPartList(currentPage){
+        var groupNoCon = $("#groupNoCondition").val();
+        var carTypeId = $("#carTypeId").val();
+        var carTypeDetailId = $("#carTypeDetailId").val();
+        var param = {currentPage:currentPage,groupNo:groupNoCon,carTypeId:carTypeId,carTypeDetailId:carTypeDetailId};
+        console.log(JSON.stringify(param));
+        $.ajax({
+            type:"POST",
+            data:JSON.stringify(param),
+            url:"/carParts/queryCarPartsByDetailId",
+            contentType:"application/json",
+            dataType:"json",
+            success:function(data){
+                $("#carPartsTableHead").empty();
+                $("#carPartsTable").empty();
+                $("#totalDiv").empty();
+                $("#totalPageUl").empty();
+                $("#carPartsTableHead").append("<tr>" +
+                    "<th style='width:20px;text-align:center;vertical-align:middle;' >全选</th>" +
+                    "<th style='width:30px;text-align:center;vertical-align:middle;'>配件Id</th>" +
+                    "<th style='width:30px;text-align:center;vertical-align:middle;'>从</th>" +
+                    "<th style='width:30px;text-align:center;vertical-align:middle;'>到</th>" +
+                    "<th style='width:50px;text-align:center;vertical-align:middle;'>配件号</th>" +
+                    "<th style='width:50px;text-align:center;vertical-align:middle;'>配件名</th>" +
+                    "<th style='width:200px;text-align:center;vertical-align:middle;'>说明</th>" +
+                    "<th style='width:30px;text-align:center;vertical-align:middle;'>组号</th>" +
+                    "<th style='width:30px;text-align:center;vertical-align:middle;'>pnc</th>" +
+                    "</tr>");
+                //总数
+                var total = data.data.total;
+                //总页数
+                var totalPageNums = Math.ceil(total/20);
+                //两侧显示的页码数 大于1
+                var edges = 2;
+                //主页码区显示的页码数 大于3
+                var playes = 5;
+                if(total==0){
+                    $('#editable_paginate').empty();
+                }else{
+                    renderPageItem(totalPageNums,playes,edges,currentPage);
+                }
+
+                $("#totalDiv").append("<div class='dataTables_info' role='status' aria-live='polite'>总共"+data.data.total+"条,每页显示20条,共"+totalPageNums+"页</div>");
+                $.each(data.data.carPartsByDetailIdList, function(i,item){
+                    $("#carPartsTable").append(
+                        "<tr>" +
+                        "<td style='width:20px;text-align:center;vertical-align:middle;'><input type='checkbox' name='carPartsIds' value='"+item.id+"'></td>"+
+                        "<td style='width:30px;text-align:center;vertical-align:middle;'>"+item.id+"</td>"+
+                        "<td style='width:30px;text-align:center;vertical-align:middle;'>"+item.fromTime+"</td>"+
+                        "<td style='width:30px;text-align:center;vertical-align:middle;'>"+item.toTime+"</td>"+
+                        "<td style='width:50px;text-align:center;vertical-align:middle;'>"+item.partsNo+"</td>"+
+                        "<td style='width:50px;text-align:center;vertical-align:middle;'>"+item.partsName+"</td>"+
+                        "<td style='width:200px;text-align:center;vertical-align:middle;'>"+item.instruction+"</td>"+
+                        "<td style='width:30px;text-align:center;vertical-align:middle;'>"+item.groupNo+"</td>"+
+                        "<td style='width:30px;text-align:center;vertical-align:middle;'>"+item.pnc+"</td>" +
+                        "</tr>"
+                    );
+                });
+            }
+        });
+    }
+
+    $("#conditionSearch").click(function () {
+        $('#editable_paginate').empty();
+        carPartList(1);
+    })
+
+    function importCarParts() {
+        $.dialog({
+            title: '导入配件',
+            width: 600,
+            height: 280,
+            lock:true,
+            content: 'url:/carParts/importCarPartsHtml',
+            init: function() {
+                //var ul = iframe.document.getElementById('right_list');
+                var iframe = this.iframe.contentWindow;
+            },
+            button: [{
+                name: '保存',
+                callback: function() {
+                    var fd = new FormData();
+                    var iframe = this.iframe.contentWindow;
+                    //console.log(iframe.$("#password").val());
+                    fd.append("file", iframe.$("#file").get(0).files[0]);//上传的文件file
+                    $.ajax({
+                        url:"/carParts/upload",
+                        type:"post",
+                        data:fd,
+                        cache: false,
+                        processData: false,
+                        contentType: false,
+                        success:function(data){
+                            console.log(data);
+                            alert("操作成功！");
+                        },
+                        error:function(e){
+                            alert("网络错误，请重试！！");
+                        }
+                    });
+                    /*var iframe = this.iframe.contentWindow;
+                    if(!iframe.document.body) {
+                        alert('iframe还没加载完毕呢');
+                        return false;
+                    }
+                    console.log($(iframe.document.body).find('#cleck_me'));*/
+                },
+                focus: true
+            }, {
+                name: '取消',
+                callback: function() {
+
+                }
+            }]
+        });
+    }
+</script>
+</body>
+</html>

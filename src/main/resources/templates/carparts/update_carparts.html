@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="../public/bootstrap.min.css" title="" rel="stylesheet" />
+    <link href="../font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="../public/animate.css" rel="stylesheet">
+    <link href="../public/inspinia.css" rel="stylesheet"/>
+    <link href="../css/pop-up.css" rel="stylesheet"  />
+    <script src="../../../https@oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="../../../https@oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <title>信息管理系统</title>
+</head>
+
+<body>
+<div id="wrapper" class="container">
+    <div class="wrapper wrapper-content">
+        <div class="right_box">
+            <div style="border:none;box-shadow:none;" class="right_one row">
+                <div class="col-md-12 col-sm-12 col-xs-12" style="float:left;">
+                    <form class="form-horizontal" method="post" id="dialogForm" action="/applicationsetting/post?name=SiteOption" novalidate="novalidate">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">文件:</label>
+                            <div class="col-lg-6">
+                                <input type="file" name="file" id="file">
+                                <!--<input id="importInput" name="query" type="button" value="导入excel">-->
+                                <!--<input type="text" class="form-control"  name="UploadFileRoot" value="">-->
+                            </div>
+                        </div>
+                    </form>
+                    <!--<button id="cleck_me">点击</button>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../public/jquery-1.11.3.js"></script>
+<script src="../public/bootstrap.min.js" type="text/javascript"></script>
+<script src="../js/plugins/lhgdialog/lhgdialog.js"></script>
+<script type="text/javascript">
+    $('#cleck_me').click(function() {
+        var DG = frameElement.api;
+        var windowapi = frameElement == null ? window.top : frameElement.api,
+            W = windowapi == null ? window.top : windowapi.opener; //内容页中调用窗口实例对象接口
+        var zIndex = W == null ? 1976 : W.$.dialog.setting.zIndex + 1;
+        $.dialog({
+            title: '添加人员',
+            width: 400,
+            height: 250,
+            zIndex:zIndex,
+            lock: true,
+            parent:DG,
+            content: 'url:abc.html',
+            init: function() {
+                //var iframe = this.iframe.contentWindow;
+                //var ul = iframe.document.getElementById('right_list');
+            },
+            button: [{
+                name: '保存',
+                callback: function() {
+                    var iframe = this.iframe.contentWindow;
+                    if(!iframe.document.body) {
+                        alert('iframe还没加载完毕呢');
+                        return false;
+                    }
+                },
+                focus: true
+            }, {
+                name: '取消',
+                callback: function() {
+
+                }
+            }]
+        });
+    })
+
+    $("#importInput").click(function(){
+        var fd = new FormData();
+        fd.append("file", $("#file").get(0).files[0]);//上传的文件file
+        $.ajax({
+            url:"/carParts/updateParts",
+            type:"post",
+            data:fd,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success:function(data){
+                console.log(data);
+                alert("操作成功！");
+            },
+            error:function(e){
+                alert("网络错误，请重试！！");
+            }
+        });
+    })
+</script>
+</body>
+
+</html>
